@@ -1,0 +1,74 @@
+ @if (session()->has('nofile'))
+       <p class="alert alert-danger"><b>{{ Session::get('nofile') }}</b></p>
+       @endif
+       @if(Session::has('success'))
+         <p class="alert alert-success"><b>{{ Session::get('success') }}</b></p>
+       @endif
+       @if(Session::has('wrong_format'))
+       <p class="alert alert-info"><b>{{ Session::get('wrong_format') }}</b></p>
+       @endif
+       @if(Session::has('exist'))
+       <p class="alert alert-warning"><b>{{ Session::get('exist') }}</b></p>
+       @endif
+
+
+       +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+        /* //$EtatCommerce = Etat::where('commerce_ref_part', '=', $var->ref_part)->where('commerce_ref_part', '=', $var->ref_part)->get();
+        //SELECT ref_part,rs_epj,code_epj, statut_parution FROM commerce C, etat T WHERE C.ref_part= T.commerce_ref_part and T.date='2019-05-31'
+        return view('index',['Commerces_Pub'=>$Commerces_Pub,
+      'Commerces_Douteux'=>$Commerces_Douteux,
+      'EtatCommerce'=>$EtatCommerce,
+      'commerce'=>$commerce]);
+       var_dump($var2->id);
+          var_dump($var2->statut_parution);
+          echo "<br>";$data['etat']  $var2->statut_parution;
+          $data['raison']= $var2->raison_technique;
+          */
+      ---------------------------------------------------------------------------------------------
+      public function index(Request $request)
+      {
+            $date = '2019-05-28'; // la date d'aujourd'hui via $date=date('Y-m-d');
+            $commerce=DB::select("select * From commerce c , etat e WHERE ref_part=commerce_ref_part and date='2019-05-28'");
+            $Commerces_Pub = Etat::where('statut_parution', 'like', 'regle')->where('date', '=', $date)->count();
+            $Commerces_Douteux = Etat::where('statut_parution', 'not like', 'regle')->where('date', '=', $date)->count();
+
+            if ($request->select=="Douteux") {
+                  $commerce=DB::select("select * From commerce , etat WHERE ref_part=commerce_ref_part and date='2019-05-28' and statut_parution not like 'regle'");
+
+                    return view('index',['Commerces_Pub'=> $Commerces_Pub,
+                  'Commerces_Douteux'=> $Commerces_Douteux,
+                  'commerce' => $commerce]);
+
+                }elseif ($request->select=="Reglés") {
+                  $commerce=DB::select("select * From commerce, etat WHERE ref_part=commerce_ref_part and date='2019-05-28' and statut_parution like 'regle'");
+
+                    return view('index',['Commerces_Pub'=> $Commerces_Pub,
+                  'Commerces_Douteux'=> $Commerces_Douteux,
+                  'commerce' => $commerce]);
+                }else {
+                  return view('index',['Commerces_Pub'=> $Commerces_Pub,
+                  'Commerces_Douteux'=> $Commerces_Douteux,
+                  'commerce' => $commerce]);
+                }
+
+          }
+          -------------------------------------------------------------------------------------------------------
+          public function index(Request $request){
+            $critere=$request->select;
+            $AllCommerces = Commerce::has('etat')->get();
+              if ($critere == "Reglés") {
+                // code...
+              }
+              elseif ($critere == "Douteux") {
+                // code...
+              }
+              else {
+                // code...
+              }
+                  foreach ($AllCommerces as $commerce) {
+                       $etatCommerce=$commerce->etat()->latest()->first()->statut_parution;
+                  }
+               return view('index',['AllCommerces' => $AllCommerces,'etatCommerce' => $etatCommerce]);
+            }
+            -------------------------------------------------------------------------------------------------------
